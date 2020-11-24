@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>rename_with_metadata</id>
+    <name>RenameWithMetadata</name>
+    <summary>Rename with Metadata</summary>
+    <description>Rename with Metadata</description>
+    <version>0.0.1</version>
+    <licence>apache</licence>
+    <author>National Institute of Infomatics</author>
+    <types>
+      <filesystem/>
+    </types>
+    <namespace>RenameWithMetadata</namespace>
+    <category>files</category>
+    <website></website>
+    <bugs></bugs>
+    <screenshot></screenshot>
+    <dependencies>
+        <nextcloud min-version="15" max-version="19" />
+    </dependencies>
+</info>
