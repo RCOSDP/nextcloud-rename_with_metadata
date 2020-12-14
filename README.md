@@ -1,2 +1,2 @@
-# nextcloud-rename_with_metadata
-Nextcloud rename with metadata
+# Nextcloud App: rename_with_metadata
+Nextcloud application for renaminig file with metadata.
