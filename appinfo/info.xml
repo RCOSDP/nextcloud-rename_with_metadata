@@ -14,7 +14,7 @@
     <namespace>RenameWithMetadata</namespace>
     <category>files</category>
     <website></website>
-    <bugs></bugs>
+    <bugs>https://github.com/RCOSDP/nextcloud-rename_with_metadata/issues</bugs>
     <screenshot></screenshot>
     <dependencies>
         <nextcloud min-version="15" max-version="19" />
