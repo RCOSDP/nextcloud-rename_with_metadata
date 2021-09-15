@@ -7,7 +7,7 @@ Renaming the file brokes file and metadata relationship.
 This application updates the metadata information when renaming file,
 and keep relationship between metadata and file.
 
-#Usage
+# Usage
 
 This application adds preRename/postRename hooks to WebDAV metadata function.
 
