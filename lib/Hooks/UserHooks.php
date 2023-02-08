@@ -4,34 +4,35 @@ declare(strict_types=1);
 
 namespace OCA\RenameWithMetadata\Hooks;
 
+use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Mount\IMountManager;
 use OCP\IDBConnection;
-use OCP\ILogger;
 use OCP\IUserSession;
 use OC\Files\Filesystem;
 use OC\Files\Node\Node;
 
+use OCA\RenameWithMetadata\Db\PropertyMapper;
+
 use OCA\DAV\DAV\CustomPropertiesBackend;
 
 class UserHooks {
-
-    private $logger;
     private $rootFolder;
+    private $databaseConnection;
     private $userSession;
     private $mountManager;
     private $customPropertiesBackend;
+    private $mapper;
 
-    public function __construct(ILogger $logger,
-                                IRootFolder $rootFolder,
+    public function __construct(IRootFolder $rootFolder,
                                 IDBConnection $databaseConnection,
                                 IUserSession $userSession,
                                 IMountManager $mountManager) {
-        $this->logger = $logger;
         $this->rootFolder = $rootFolder;
         $this->databaseConnection = $databaseConnection;
         $this->userSession = $userSession;
         $this->mountManager = $mountManager;
+        $this->mapper = new PropertyMapper($databaseConnection);
 
     }
 
@@ -39,7 +40,7 @@ class UserHooks {
         $callback = function(Node $source, Node $target) {
             $objectTree = new \OCA\DAV\Connector\Sabre\ObjectTree();
             $userFolder = \OC::$server->getUserFolder();
-            $view = \OC\Files\Filesystem::getView();
+            $view = Filesystem::getView();
 
             if ($userFolder instanceof Folder && $userFolder->getPath() === $view->getRoot()) {
                 $rootInfo = $userFolder;
@@ -72,9 +73,23 @@ class UserHooks {
             $targetPath = $target->getPath();
             $targetPath = substr($targetPath, $userPrefixLength);
             $targetPath = substr($targetPath, $filesPrefixLength);
+            $dump_sourcePath = 'files' . $userPrefix . '/' . $sourcePath;
+            $dump_sourcePathLength = strlen($dump_sourcePath);
+            $dump_targetPath = 'files' . $userPrefix . '/' . $targetPath;
+            $entities = $this->mapper->findProperties($dump_sourcePath);
 
-            $this->customPropertiesBackend->delete($targetPath);
-            $this->customPropertiesBackend->move($sourcePath, $targetPath);
+            if (!empty($entities)) {
+                foreach ($entities as $entity) {
+                    $property_path = $entity->getPropertypath();
+                    if (str_contains($property_path, $dump_sourcePath)) {
+                        $value = substr($property_path, $dump_sourcePathLength);
+                        $new_sourcePath = $dump_sourcePath . $value;
+                        $new_targetPath = $dump_targetPath . $value;
+                        $this->customPropertiesBackend->delete($targetPath);
+                        $this->customPropertiesBackend->move($new_sourcePath, $new_targetPath);
+                    }
+                }
+            }
         };
         $this->rootFolder->listen('\OC\Files', 'postRename', $callback);
     }

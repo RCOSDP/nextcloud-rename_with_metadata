@@ -10,22 +10,19 @@ use \OCA\RenameWithMetadata\Hooks\UserHooks;
 class Application extends App {
     public const APP_ID = 'rename_with_metadata';
 
-    public function __construct(array $urlParams = []) {
+    public function __construct(array $urlParams=array()) {
         parent::__construct(self::APP_ID, $urlParams);
         $container = $this->getContainer();
 
         /**
          * Controllers
-         */
-        $container->registerService('UserHooks', function() {
-            $container = $this->getContainer();
-            $server = $container->getServer();
+         **/
+        $container->registerService('UserHooks', function ($c) {
             return new UserHooks(
-                $server->getLogger(),
-                $server->getRootFolder(),
-                $server->getDatabaseConnection(),
-                $server->getUserSession(),
-                $server->getMountManager()
+                $c->query('ServerContainer')->getRootFolder(),
+                $c->query('ServerContainer')->getDatabaseConnection(),
+                $c->query('ServerContainer')->getUserSession(),
+                $c->query('ServerContainer')->getMountManager(),
             );
         });
     }
@@ -36,6 +33,6 @@ class Application extends App {
 
     public function registerHooks() {
         $container = $this->getContainer();
-        $container->query('UserHooks')->register();
+        $container->get('UserHooks')->register();
     }
 }
